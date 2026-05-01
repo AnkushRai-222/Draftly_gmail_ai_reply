@@ -1,0 +1,117 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  googleId     String       @unique
+  email        String       @unique
+  name         String?
+  picture      String?
+  accessToken  String       // AES-256 encrypted
+  refreshToken String       // AES-256 encrypted
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  preference   Preference?
+  styleProfile StyleProfile?
+  emails       Email[]
+  drafts       Draft[]
+  filterRules  FilterRule[]
+}
+
+model Preference {
+  id             String  @id @default(uuid())
+  userId         String  @unique
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultTone    String  @default("professional")
+  signature      String?
+  autoGenerate   Boolean @default(false)
+  preferredModel String  @default("openrouter") // "openrouter" | "gemini"
+}
+
+model FilterRule {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "sender" | "subject_keyword" | "label" | "header"
+  value     String   // e.g. "noreply", "OTP", "CATEGORY_PROMOTIONS"
+  action    String   // "skip" | "allow"
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Email {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gmailMessageId String   @unique
+  threadId       String
+  sender         String
+  senderEmail    String
+  subject        String
+  body           String
+  snippet        String
+  receivedAt     DateTime
+  isFiltered     Boolean  @default(false)
+  filterReason   String?
+  labels         String[] // Gmail labels
+  createdAt      DateTime @default(now())
+
+  draft Draft?
+
+  @@index([userId])
+  @@index([threadId])
+}
+
+model Draft {
+  id          String   @id @default(uuid())
+  emailId     String   @unique
+  email       Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     String
+  tone        String
+  // pending | approved | edited | rejected | sent | failed
+  status      String   @default("pending")
+  aiProvider  String   // "openrouter" | "gemini"
+  aiModel     String
+  promptUsed  String?  // store prompt for debugging
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sentLog SentLog?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model SentLog {
+  id            String    @id @default(uuid())
+  draftId       String    @unique
+  draft         Draft     @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  gmailSentId   String?
+  attemptCount  Int       @default(0)
+  success       Boolean   @default(false)
+  errorMessage  String?
+  sentAt        DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model StyleProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // JSON: { tone, avgLength, greetings[], closings[], commonPhrases[], formality }
+  inferredStyle Json
+  sampleCount   Int      @default(0)
+  updatedAt     DateTime @updatedAt
+}
