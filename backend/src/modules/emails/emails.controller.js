@@ -1,5 +1,6 @@
 const prisma = require('../../config/db');
 const { fetchEmails, getEmail } = require('./gmail.service');
+const { generateDraft } = require('../drafts/drafts.service');
 const logger = require('../../utils/logger');
 
 /**
@@ -36,6 +37,20 @@ const getEmails = async (req, res, next) => {
     });
 
     logger.info(`Fetched ${emails.length} actionable, ${filtered.length} filtered for ${req.user.email}`);
+
+    // Auto-generate drafts for new emails if user has enabled this preference
+    if (emails.length > 0) {
+      const preference = await prisma.preference.findUnique({
+        where: { userId: req.user.id },
+      });
+      if (preference?.autoGenerate) {
+        emails.forEach((email) => {
+          generateDraft(req.user, { emailId: email.id }).catch((err) =>
+            logger.warn(`Auto-draft generation failed for email ${email.id}: ${err.message}`)
+          );
+        });
+      }
+    }
 
     res.json({
       success: true,

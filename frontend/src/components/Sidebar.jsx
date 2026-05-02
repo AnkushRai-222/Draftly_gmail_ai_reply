@@ -42,10 +42,17 @@ export const Sidebar = () => {
       {/* User */}
       <div style={styles.userSection}>
         <div style={styles.userInfo}>
-          {user?.picture
-            ? <img src={user.picture} alt="" style={styles.avatar} />
-            : <div style={styles.avatarFallback}>{user?.name?.[0]}</div>
-          }
+          {user?.picture ? (
+            <img
+              src={user.picture}
+              alt=""
+              style={styles.avatar}
+              onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+            />
+          ) : null}
+          <div style={{ ...styles.avatarFallback, display: user?.picture ? 'none' : 'flex' }}>
+            {user?.name?.[0]}
+          </div>
           <div style={styles.userText}>
             <div style={styles.userName}>{user?.name}</div>
             <div style={styles.userEmail}>{user?.email}</div>

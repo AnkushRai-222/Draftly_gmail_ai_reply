@@ -8,6 +8,42 @@ const decodeBase64 = (data) => {
 };
 
 /**
+ * Convert HTML to plain text with proper formatting
+ * Handles complex nested HTML, entities, and whitespace
+ */
+const htmlToText = (html) => {
+  if (!html) return '';
+
+  return html
+    // Remove script and style tags with their content
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, '')
+    // Convert common block elements to newlines
+    .replace(/<\/(?:div|p|h[1-6]|article|section|header|footer|li|td|tr|table)>/gi, '\n')
+    .replace(/<(?:br\s*\/?|hr\s*\/?)>/gi, '\n')
+    // Convert list items to bullet points
+    .replace(/<li[^>]*>/gi, '• ')
+    // Strip remaining HTML tags
+    .replace(/<[^>]+>/g, '')
+    // Decode HTML entities
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(code))
+    .replace(/&#[xX]([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    // Collapse multiple whitespace/newlines
+    .replace(/\n\s*\n/g, '\n\n')
+    .replace(/[ \t]+/g, ' ')
+    // Trim
+    .trim();
+};
+
+/**
  * Recursively extract plain text body from Gmail message payload
  * Gmail stores body in nested multipart structure
  */
@@ -26,8 +62,8 @@ const extractBody = (payload) => {
 
     const htmlPart = payload.parts.find((p) => p.mimeType === 'text/html');
     if (htmlPart?.body?.data) {
-      // Strip HTML tags for plain text usage
-      return decodeBase64(htmlPart.body.data).replace(/<[^>]*>/g, ' ').trim();
+      // Convert HTML to properly formatted plain text
+      return htmlToText(decodeBase64(htmlPart.body.data));
     }
 
     // Recurse into nested multipart
