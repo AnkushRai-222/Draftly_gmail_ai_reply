@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
+const baseUrl = rawBaseUrl.replace(/\/$/, '')
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: baseUrl ? `${baseUrl}/api` : '/api',
   timeout: 30000,
 })
 
@@ -27,10 +30,10 @@ api.interceptors.response.use(
 // ─── Auth ─────────────────────────────────────────────────────────────────
 export const authAPI = {
   // Uses axios directly (not api) — auth routes are /auth/*, not /api/auth/*
-  me: () => axios.get('/auth/me', {
+  me: () => axios.get(baseUrl ? `${baseUrl}/auth/me` : '/auth/me', {
     headers: { Authorization: `Bearer ${localStorage.getItem('draftly_token')}` }
   }).then(r => r.data.data),
-  logout: () => axios.post('/auth/logout', {}, {
+  logout: () => axios.post(baseUrl ? `${baseUrl}/auth/logout` : '/auth/logout', {}, {
     headers: { Authorization: `Bearer ${localStorage.getItem('draftly_token')}` }
   }),
 }

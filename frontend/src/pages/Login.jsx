@@ -5,13 +5,15 @@ import { useAuth } from '../context/AuthContext'
 export default function Login() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
+  const baseUrl = rawBaseUrl.replace(/\/$/, '')
 
   useEffect(() => {
     if (user) navigate('/dashboard')
   }, [user, navigate])
 
   const handleGoogleLogin = () => {
-    window.location.href = '/auth/google'
+    window.location.href = baseUrl ? `${baseUrl}/auth/google` : '/auth/google'
   }
 
   return (
