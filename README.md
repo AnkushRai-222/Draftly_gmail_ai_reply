@@ -199,18 +199,3 @@ pending  →  approved  →  sent
 | Logging | Winston |
 
 ---
-
-## Deliverables Checklist
-
-- [x] Functional product (backend + frontend)
-- [x] README with API docs and setup guide
-- [x] Clean, organized, well-commented code
-- [x] RESTful API design with proper status codes
-- [x] Gmail OAuth2 integration (real, multi-user)
-- [x] AI draft generation with OpenRouter + Gemini fallback
-- [x] Email filter pipeline (system + user-configurable)
-- [x] Draft review flow (approve / edit / reject / regenerate)
-- [x] Reliable send via BullMQ with retry + idempotency
-- [x] Style learning from sent email history
-- [x] Thread integrity (In-Reply-To / References headers)
-- [x] Rate limiting, token encryption, error handling
