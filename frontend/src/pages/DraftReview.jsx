@@ -53,7 +53,8 @@ export default function DraftReview() {
         toast('Email queued for sending! ✓', 'success')
       } else if (action === 'regenerate') {
         const result = await draftsAPI.regenerate(id, tone)
-        setDraft(result.data)
+        // Preserve email data from current draft since API response doesn't include it
+        setDraft({ ...result.data, email: draft.email })
         setContent(result.data.content)
         setTone(result.data.tone)
         toast(`Regenerated with ${result.data.aiProvider}`, 'info')
@@ -106,7 +107,11 @@ export default function DraftReview() {
             </div>
             <div style={styles.metaRow}>
               <span style={styles.metaKey}>Received</span>
-              <span style={styles.metaVal}>{new Date(draft.email?.receivedAt).toLocaleString()}</span>
+              <span style={styles.metaVal}>
+                {draft.email?.receivedAt
+                  ? new Date(draft.email.receivedAt).toLocaleString()
+                  : '—'}
+              </span>
             </div>
           </div>
           <hr className="divider" />

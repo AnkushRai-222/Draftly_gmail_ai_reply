@@ -10,6 +10,7 @@ const passport = require('passport');
 
 const logger = require('./utils/logger');
 const { connectRedis } = require('./config/redis');
+const { connectWithRetry, ensureConnection } = require('./config/db');
 const configurePassport = require('./config/passport');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
@@ -69,14 +70,37 @@ app.use(passport.session());
 // Rate limiting
 app.use('/api/', apiLimiter);
 
+// Connection resilience middleware - ensures DB is connected before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await ensureConnection();
+    next();
+  } catch (error) {
+    logger.error('Database connection failed in middleware:', error.message);
+    res.status(503).json({ success: false, message: 'Database unavailable. Please try again.' });
+  }
+});
+
 // ─── Health Check ─────────────────────────────────────────────────────────────
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'Draftly Backend',
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-  });
+app.get('/health', async (req, res) => {
+  try {
+    // Test actual database connectivity
+    const { ensureConnection } = require('./config/db');
+    await ensureConnection();
+
+    res.json({
+      status: 'ok',
+      service: 'Draftly Backend',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'error',
+      message: 'Database unavailable',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
@@ -100,11 +124,8 @@ const start = async () => {
     initQueue();
     startWorker();
 
-    // Test DB connection
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    await prisma.$connect();
-    logger.info('✅ Database connected');
+    // Test DB connection with retry logic
+    await connectWithRetry();
 
     app.listen(PORT, () => {
       logger.info(`🚀 Draftly backend running on port ${PORT}`);
