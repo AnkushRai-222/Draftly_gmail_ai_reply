@@ -173,16 +173,6 @@ pending  →  approved  →  sent
 
 **Live Demo:** [Draftly - Gmail AI Reply Agent](https://draftly-frontend-csyd.onrender.com/)
 
-1. Push code to GitHub
-2. Create a **Web Service** for backend (`npm start`)
-3. Create a **PostgreSQL** database add-on
-4. Create a **Redis** instance (Upstash free tier works)
-5. Create a **Static Site** for frontend (`npm run build`, publish `dist/`)
-6. Set all env vars in Render dashboard
-7. Update `GOOGLE_CALLBACK_URL` to your deployed backend URL
-8. Update `FRONTEND_URL` to your deployed frontend URL
-9. Add deployed callback URL to Google Cloud Console
-
 ---
 
 ## Tech Stack
