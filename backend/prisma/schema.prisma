@@ -70,6 +70,7 @@ model Email {
 
   @@index([userId])
   @@index([threadId])
+  @@index([userId, receivedAt(sort: Desc)]) // Fast pagination for inbox
 }
 
 model Draft {
@@ -92,6 +93,7 @@ model Draft {
 
   @@index([userId])
   @@index([status])
+  @@index([userId, status]) // Fast filtered draft queries
 }
 
 model SentLog {

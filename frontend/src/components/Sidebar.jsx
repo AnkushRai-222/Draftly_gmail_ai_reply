@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../hooks/useToast'
 
 const navItems = [
   { to: '/dashboard', icon: '✉', label: 'Inbox' },
@@ -11,10 +13,20 @@ const navItems = [
 export const Sidebar = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {
-    await logout()
-    navigate('/')
+    setIsLoggingOut(true)
+    try {
+      await logout()
+      toast('Logged out successfully', 'success')
+    } catch {
+      toast('Logout failed', 'error')
+    } finally {
+      setIsLoggingOut(false)
+      navigate('/')
+    }
   }
 
   return (
@@ -58,8 +70,16 @@ export const Sidebar = () => {
             <div style={styles.userEmail}>{user?.email}</div>
           </div>
         </div>
-        <button onClick={handleLogout} style={styles.logoutBtn} title="Logout">
-          ↪
+        <button
+          onClick={handleLogout}
+          style={{
+            ...styles.logoutBtn,
+            ...(isLoggingOut ? styles.logoutBtnDisabled : {}),
+          }}
+          title="Logout"
+          disabled={isLoggingOut}
+        >
+          {isLoggingOut ? <span className="spinner" style={{ width: 16, height: 16 }} /> : '↪'}
         </button>
       </div>
     </aside>
@@ -138,5 +158,10 @@ const styles = {
     color: 'var(--text-muted)', cursor: 'pointer',
     fontSize: '1rem', padding: 4, flexShrink: 0,
     transition: 'color var(--transition)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  logoutBtnDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
   },
 }

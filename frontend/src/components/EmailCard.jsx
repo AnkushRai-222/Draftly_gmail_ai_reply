@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const STATUS_LABEL = {
@@ -16,7 +17,7 @@ const timeAgo = (dateStr) => {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-export const EmailCard = ({ email, onGenerate, generating }) => {
+export const EmailCard = memo(({ email, onGenerate, generating }) => {
   const navigate = useNavigate()
   const draft = email.draft
 
@@ -66,7 +67,7 @@ export const EmailCard = ({ email, onGenerate, generating }) => {
       )}
     </div>
   )
-}
+})
 
 const styles = {
   card: {
