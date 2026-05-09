@@ -3,11 +3,13 @@ import { prefsAPI, styleAPI } from '../services/api'
 import { ToneSelector } from '../components/ToneSelector'
 import { useToast } from '../hooks/useToast'
 import { ToastContainer } from '../components/Toast'
+import { useTheme } from '../context/ThemeContext'
 
 const FILTER_TYPES = ['sender', 'subject_keyword', 'label']
 
 export default function Settings() {
   const { toasts, toast } = useToast()
+  const { theme, toggleTheme } = useTheme()
 
   // Preferences
   const [prefs, setPrefs] = useState({ defaultTone: 'professional', signature: '', autoGenerate: false, preferredModel: 'openrouter' })
@@ -126,6 +128,20 @@ export default function Settings() {
         <button className="btn btn-primary" onClick={savePrefs} disabled={savingPrefs}>
           {savingPrefs ? <><span className="spinner" style={{ width: 14, height: 14 }} /> Saving…</> : 'Save Preferences'}
         </button>
+
+        {/* Theme Toggle */}
+        <div style={{ ...styles.toggleRow, marginTop: 24 }}>
+          <div>
+            <div style={styles.toggleLabel}>Dark Mode</div>
+            <div style={styles.toggleDesc}>Switch between light and dark theme</div>
+          </div>
+          <button
+            onClick={toggleTheme}
+            style={{ ...styles.toggle, ...(theme === 'dark' ? styles.toggleOn : {}) }}
+          >
+            <div style={{ ...styles.toggleKnob, ...(theme === 'dark' ? styles.toggleKnobOn : {}) }} />
+          </button>
+        </div>
       </section>
 
       <hr className="divider" />
@@ -245,7 +261,7 @@ const styles = {
   toggle: { width: 44, height: 24, borderRadius: 99, background: 'var(--bg-elevated)', border: '1px solid var(--border)', cursor: 'pointer', position: 'relative', transition: 'all var(--transition)', flexShrink: 0 },
   toggleOn: { background: 'var(--accent)', borderColor: 'var(--accent)' },
   toggleKnob: { position: 'absolute', top: 3, left: 3, width: 16, height: 16, borderRadius: '50%', background: 'var(--text-muted)', transition: 'all var(--transition)' },
-  toggleKnobOn: { left: 23, background: '#0e0f11' },
+  toggleKnobOn: { left: 23, background: 'var(--bg-base)' },
   addRule: { display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' },
   rulesList: { display: 'flex', flexDirection: 'column', gap: 6 },
   ruleRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem' },

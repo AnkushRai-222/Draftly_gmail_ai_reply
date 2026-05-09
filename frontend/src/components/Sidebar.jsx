@@ -14,7 +14,7 @@ export const Sidebar = () => {
 
   const handleLogout = async () => {
     await logout()
-    navigate('/login')
+    navigate('/')
   }
 
   return (
@@ -87,7 +87,7 @@ const styles = {
   logoIcon: {
     width: 32, height: 32,
     background: 'var(--accent)',
-    color: '#0e0f11',
+    color: '#1a1a2e',
     borderRadius: 8,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1rem',

@@ -79,7 +79,7 @@ const styles = {
       linear-gradient(90deg, var(--border) 1px, transparent 1px)
     `,
     backgroundSize: '40px 40px',
-    opacity: 0.3,
+    opacity: 0.4,
     maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 40%, transparent 100%)',
   },
   container: {
@@ -90,7 +90,7 @@ const styles = {
   logoBlock: { textAlign: 'center' },
   logoIcon: {
     width: 56, height: 56, margin: '0 auto 16px',
-    background: 'var(--accent)', color: '#0e0f11',
+    background: 'var(--accent)', color: '#1a1a2e',
     borderRadius: 16, display: 'flex',
     alignItems: 'center', justifyContent: 'center',
     fontFamily: 'var(--font-display)', fontWeight: 800,
@@ -108,6 +108,7 @@ const styles = {
     width: '100%', background: 'var(--bg-surface)',
     border: '1px solid var(--border)', borderRadius: 'var(--radius-xl)',
     padding: '32px', textAlign: 'center',
+    boxShadow: 'var(--shadow-md)',
   },
   cardTitle: {
     fontFamily: 'var(--font-display)', fontSize: '1.25rem',

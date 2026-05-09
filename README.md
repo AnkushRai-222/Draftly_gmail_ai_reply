@@ -171,6 +171,8 @@ pending  →  approved  →  sent
 
 ## Deployment (Render)
 
+**Live Demo:** [Draftly - Gmail AI Reply Agent](https://draftly-frontend-csyd.onrender.com/)
+
 1. Push code to GitHub
 2. Create a **Web Service** for backend (`npm start`)
 3. Create a **PostgreSQL** database add-on
